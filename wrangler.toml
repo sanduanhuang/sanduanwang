@@ -1,0 +1,10 @@
+name = "sanduanwang"
+compatibility_date = "2026-05-27"
+
+pages_build_output_dir = "dist"
+
+# API 反向代理目标地址
+# 当 cpolar 地址变更时，在 Cloudflare Dashboard -> sanduanwang -> 设置 -> 环境变量 中修改
+# 修改后无需重新部署，等待约 30 秒生效
+[vars]
+API_UPSTREAM = "https://27d0fbef.r8.cpolar.top"

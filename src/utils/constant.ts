@@ -1,14 +1,10 @@
-let baseURL = import.meta.env.VITE_API_BASE_URL || "https://27d0fbef.r8.cpolar.top";
+// 所有 /api/* 请求由 Cloudflare Pages Function 反向代理到上游服务器
+// 上游地址通过 Cloudflare Dashboard 环境变量 API_UPSTREAM 配置，无需重新部署
+let baseURL = "";
 
-// 从 Netlify 环境变量获取 API 地址
+// 已废弃 - 保留以兼容旧代码
 export function fetchApiConfig(): void {
-  const envApiUrl = import.meta.env.VITE_SDHGITEE;
-  if (envApiUrl) {
-    baseURL = envApiUrl;
-    console.log("API 地址已从环境变量更新为:", baseURL);
-  } else {
-    console.log("未设置环境变量 VITE_SDHGITEE，使用默认地址:", baseURL);
-  }
+  console.log("API 请求已通过 Cloudflare Pages Functions 代理");
 }
 
 const constant = {
