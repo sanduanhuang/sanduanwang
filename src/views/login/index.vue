@@ -203,6 +203,13 @@ const codeCountdown = ref(0);
 let countdownTimer: ReturnType<typeof setInterval> | null = null;
 const generatedCode = ref(""); // 前端生成的验证码
 
+// 验证验证码有效性
+const isCodeValid = computed(() => {
+  // 没有发送过验证码则直接视为无效
+  if (!generatedCode.value) return false;
+  return registerForm.code === generatedCode.value;
+});
+
 // 发送验证码按钮是否可用
 const sendCodeDisabled = computed(() => {
   return !registerForm.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.email);
@@ -386,8 +393,8 @@ const handleRegister = async () => {
   }
 
   // 验证验证码
-  if (registerForm.code !== generatedCode.value) {
-    showToast("验证码错误，请重新输入", 'error');
+  if (!isCodeValid.value) {
+    showToast(generatedCode.value ? "验证码错误，请重新输入" : "请先获取邮箱验证码", 'error');
     return;
   }
 

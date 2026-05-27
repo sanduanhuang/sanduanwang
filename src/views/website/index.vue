@@ -76,14 +76,14 @@
               <div class="card-name">{{ site.名字 }}</div>
               <div class="card-desc">{{ site.介绍 }}</div>
               <button
-                v-if="userStore.isLoggedIn"
+                v-if="userStore.isAdmin"
                 class="delete-btn"
                 @click.prevent="deleteSite(site)"
                 title="删除"
               >×</button>
             </a>
             <div
-              v-if="userStore.isLoggedIn"
+              v-if="userStore.isAdmin"
               class="website-card add-card"
               @click="showAddDialog = true"
             >
