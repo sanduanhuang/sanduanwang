@@ -1976,64 +1976,50 @@ const applyBgColor = () => {
 
 let highlightTimeout: number | null = null;
 
-// 将 # 开头的文本转为标题
-const handleMarkdownHeading = () => {
-  if (!editorRef.value) return;
-  
-  const selection = window.getSelection();
-  if (!selection || selection.rangeCount === 0) return;
-  
-  const range = selection.getRangeAt(0);
-  const node = range.startContainer;
-  
-  // 只对文本节点处理
-  if (node.nodeType !== Node.TEXT_NODE) return;
-  
-  const text = (node.textContent || '').replace(/\u00a0/g, ' ');
-  const match = text.match(/^(#{1,3})\s/);
-  if (!match) return;
-  
-  const level = match[1].length;
-  const tagName = `h${level}`;
-  
-  // 创建标题元素，保留 # 后面的文本
-  const headingText = text.replace(/^#{1,3}\s/, '');
-  const heading = document.createElement(tagName);
-  heading.textContent = headingText;
-  heading.id = `heading-${Date.now()}`;
-  
-  // 替换文本节点
-  node.parentNode?.replaceChild(heading, node);
-  
-  // 触发目录刷新
-  tocVersion.value++;
-  
-  // 将光标移到标题末尾
-  setTimeout(() => {
-    const newRange = document.createRange();
-    newRange.setStartAfter(heading);
-    newRange.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(newRange);
-    editorRef.value?.focus();
-  }, 0);
-};
-
 const onEditorKeydown = (e: KeyboardEvent) => {
-  // 空格键触发 # 标题识别
-  if (e.key === ' ' || e.code === 'Space') {
-    setTimeout(() => handleMarkdownHeading(), 0);
-  }
-  
   // Escape 关闭字体大小下拉
   if (e.key === 'Escape') {
     showFontSizeDropdown.value = false;
   }
   
-  // Enter 在引用内空行时退出引用
+  // Enter 处理
   if (e.key === 'Enter') {
+    // Shift+Enter 退出代码块
+    if (e.shiftKey && handleCodeBlockExit(e)) return;
+    // 在引用内空行时退出引用
     handleQuoteExit(e);
   }
+};
+
+// 在代码块内按 Shift+Enter，退出代码块
+const handleCodeBlockExit = (e: KeyboardEvent): boolean => {
+  if (!editorRef.value) return false;
+
+  const selection = window.getSelection();
+  if (!selection || !selection.rangeCount) return false;
+
+  let node = selection.getRangeAt(0).startContainer;
+  let preEl: HTMLElement | null = null;
+  let el: HTMLElement | null = node.nodeType === Node.ELEMENT_NODE ? node as HTMLElement : node.parentElement;
+  const editor = editorRef.value;
+  while (el && el !== editor) {
+    if (el.tagName === 'PRE') { preEl = el; break; }
+    el = el.parentElement;
+  }
+  if (!preEl) return false;
+
+  e.preventDefault();
+  const p = document.createElement('p');
+  p.innerHTML = '<br>';
+  preEl.parentNode?.insertBefore(p, preEl.nextSibling);
+
+  const newRange = document.createRange();
+  newRange.setStart(p, 0);
+  newRange.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(newRange);
+  editor.focus();
+  return true;
 };
 
 // 在引用块内按 Enter，如果当前行为空则退出引用
@@ -2112,14 +2098,14 @@ const onEditorInput = () => {
   // 触发目录刷新
   tocVersion.value++;
   
-  // 防抖高亮代码块（用户停止输入后 800ms 应用高亮）
+  // 防抖高亮代码块（用户停止输入后 2000ms 应用高亮，降低卡顿）
   if (highlightTimeout) {
     clearTimeout(highlightTimeout);
   }
   highlightTimeout = window.setTimeout(() => {
     highlightEditorCode();
     highlightTimeout = null;
-  }, 800);
+  }, 2000);
 };
 
 const submitForm = async () => {

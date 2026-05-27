@@ -252,8 +252,8 @@ const loadDanmakuHistory = async () => {
         return { text: content, color, avatar } as DanmakuItem;
       }).filter((item: DanmakuItem | null): item is DanmakuItem => item !== null);
 
-      // 只保留最近 50 条弹幕，按时间正序排列
-      danmus.value = historyDanmus.slice(-50).reverse();
+      // 只保留最近 50 条弹幕，最新的先显示
+      danmus.value = historyDanmus.slice(-50);
     }
   } catch (error) {
     console.error("加载历史弹幕失败:", error);
