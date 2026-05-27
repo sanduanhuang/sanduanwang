@@ -1,6 +1,6 @@
-// 所有 /api/* 请求由 Cloudflare Pages Function 反向代理到上游服务器
-// 上游地址通过 Cloudflare Dashboard 环境变量 API_UPSTREAM 配置，无需重新部署
-let baseURL = "";
+// 本地开发时使用 VITE_API_BASE_URL（在 .env 文件中配置）
+// 生产环境（Cloudflare Pages）由 Pages Function 反向代理，baseURL 为空字符串
+let baseURL = import.meta.env.VITE_API_BASE_URL || "";
 
 // 已废弃 - 保留以兼容旧代码
 export function fetchApiConfig(): void {
