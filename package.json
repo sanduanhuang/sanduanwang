@@ -21,8 +21,8 @@
     "vue3-danmaku": "^1.6.7"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "^6.0.7",
     "sass": "^1.71.1",
-    "vite": "^5.2.0"
+    "vite": "^6.0.0"
   }
 }
