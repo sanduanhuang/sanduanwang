@@ -165,11 +165,7 @@ const sendDanmaku = async () => {
     const uniqueId = userInfo?.uniqueId || 'user_1779243581625437300';
     const account = userInfo?.account || '游客';
     
-    console.log("=== 弹幕调试 ===");
-    console.log("userStore.userInfo:", userStore.userInfo);
-    console.log("userStore.isLoggedIn:", userStore.isLoggedIn);
-    console.log("uniqueId:", uniqueId);
-    console.log("account:", account);
+    console.log("发送弹幕 - uniqueId:", uniqueId);
     
     const result = await sendDanmu({
       弹幕内容: danmakuText.value,
@@ -233,90 +229,31 @@ const loadDanmakuHistory = async () => {
     const userInfo = userStore.userInfo;
     const uniqueId = userInfo?.uniqueId || 'user_1779243581625437300';
     const result = await getDanmuList('home', '', uniqueId);
-    
-    console.log("=== 弹幕列表API响应 ===");
-    console.log("result:", result);
-    
+
     if (result.success && result.data) {
       const dataArray = Array.isArray(result.data) ? result.data : [result.data];
-      
-      console.log("弹幕数据数组:", dataArray);
-      
-      const historyDanmus: DanmakuItem[] = dataArray.map((item: any, index: number) => {
-        if (!item) {
-          console.log(`弹幕项 ${index}: 为空`);
-          return null;
-        }
-        
-        let content = '';
-        let color = '#ffffff';
+
+      const historyDanmus: DanmakuItem[] = dataArray.map((item: any) => {
+        if (!item) return null;
+
+        const content = item.弹幕内容 ? String(item.弹幕内容) : '';
+        const color = item.弹幕颜色 ? String(item.弹幕颜色) : '#ffffff';
         let avatar = '';
-        
-        console.log(`弹幕项 ${index} 类型:`, typeof item);
-        console.log(`弹幕项 ${index} 内容:`, item);
-        
-        if (typeof item === 'object') {
-          if (item.弹幕内容 !== undefined) {
-            console.log(`弹幕项 ${index}: 发现弹幕内容字段`);
-            if (typeof item.弹幕内容 === 'string') {
-              content = item.弹幕内容;
-            } else if (typeof item.弹幕内容 === 'object') {
-              content = JSON.stringify(item.弹幕内容);
-            } else {
-              content = String(item.弹幕内容);
-            }
-            color = item.弹幕颜色 ? String(item.弹幕颜色) : '#ffffff';
-          } else if (item.txt !== undefined) {
-            content = typeof item.txt === 'string' ? item.txt : String(item.txt);
-            color = item.color ? String(item.color) : '#ffffff';
-          } else if (item.data !== undefined) {
-            if (typeof item.data === 'string') {
-              content = item.data;
-            } else if (Array.isArray(item.data)) {
-              content = String(item.data[1] || '');
-              color = item.data[2] ? String(item.data[2]) : '#ffffff';
-            } else if (typeof item.data === 'object') {
-              content = item.data.弹幕内容 ? String(item.data.弹幕内容) : JSON.stringify(item.data);
-              color = item.data.弹幕颜色 ? String(item.data.弹幕颜色) : '#ffffff';
-              avatar = item.data.头像 || item.data.accountData?.头像 || '';
-            } else {
-              content = String(item.data);
-            }
-          } else if (typeof item === 'object' && !item.弹幕内容 && !item.txt && !item.data) {
-            console.log(`弹幕项 ${index}: 只有账号数据对象，转换为JSON`);
-            content = JSON.stringify(item);
-          } else {
-            content = JSON.stringify(item);
-          }
-          
-          if (item.账号数据) {
-            try {
-              const accountData = typeof item.账号数据 === 'string' ? JSON.parse(item.账号数据) : item.账号数据;
-              avatar = accountData.头像 || avatar;
-            } catch (e) {
-              console.log("解析账号数据失败");
-            }
-          }
-        } else {
-          content = String(item);
+
+        if (item.账号数据) {
+          try {
+            const accountData = typeof item.账号数据 === 'string' ? JSON.parse(item.账号数据) : item.账号数据;
+            avatar = accountData.头像 || '';
+          } catch (_e) { /* ignore */ }
         }
-        
-        if (!content || content.trim() === '{}' || content.trim() === '[]') {
-          console.log(`弹幕项 ${index}: 内容为空或无效`);
-          return null;
-        }
-        
-        console.log(`弹幕项 ${index} 处理结果:`, { text: content, color, avatar });
-        
-        return {
-          text: content,
-          color: color,
-          avatar: avatar
-        } as DanmakuItem;
+
+        if (!content) return null;
+
+        return { text: content, color, avatar } as DanmakuItem;
       }).filter((item: DanmakuItem | null): item is DanmakuItem => item !== null);
-      
-      danmus.value = historyDanmus;
-      console.log("最终弹幕列表:", danmus.value);
+
+      // 只保留最近 50 条弹幕，按时间正序排列
+      danmus.value = historyDanmus.slice(-50).reverse();
     }
   } catch (error) {
     console.error("加载历史弹幕失败:", error);

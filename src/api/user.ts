@@ -224,11 +224,17 @@ export async function getDanmuList(page?: string, senderAccount?: string, unique
       table: string;
       fields: string[];
       where: string;
+      order: string;
+      sort: string;
+      limit: number;
       uniqueId?: string;
     } = {
       table: "弹幕表",
       fields: [],
       where: whereClause,
+      order: "id",
+      sort: "desc",
+      limit: 50,
     };
     
     if (uniqueId) {

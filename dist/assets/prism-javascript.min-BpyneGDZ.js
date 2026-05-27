@@ -1,4 +1,4 @@
-import{i as Y,B as V}from"./index-KxAoPU1n.js";var q={exports:{}},X;function ee(){return X||(X=1,(function(m){var F=typeof window<"u"?window:typeof WorkerGlobalScope<"u"&&self instanceof WorkerGlobalScope?self:{};/**
+import{i as Y,B as V}from"./index-gxOhd2RC.js";var q={exports:{}},X;function ee(){return X||(X=1,(function(m){var F=typeof window<"u"?window:typeof WorkerGlobalScope<"u"&&self instanceof WorkerGlobalScope?self:{};/**
  * Prism: Lightweight, robust, elegant syntax highlighting
  *
  * @license MIT <https://opensource.org/licenses/MIT>
